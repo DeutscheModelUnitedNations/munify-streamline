@@ -5,6 +5,9 @@ import type { paths } from "../types/listmonk";
 export const helloWorldTask = schedules.task({
   id: "hello-world",
   cron: "*/5 * * * *", // Every 5 minutes
+  retry: {
+    maxAttempts: 1,
+  },
 
   run: async (payload: any, { ctx }) => {
     logger.log("Hello, world!", { payload, ctx });
@@ -12,6 +15,8 @@ export const helloWorldTask = schedules.task({
     const URL = process.env.LISTMONK_API_URL;
     const USERNAME = process.env.LISTMONK_API_USERNAME;
     const PASSWORD = process.env.LISTMONK_API_KEY;
+
+    console.log(URL, USERNAME, PASSWORD);
 
     const client = createClient<paths>({
       baseUrl: URL,
@@ -27,7 +32,7 @@ export const helloWorldTask = schedules.task({
     });
 
     if (error) {
-      throw new Error(error);
+      throw new Error(JSON.stringify(error));
     } else {
       return data;
     }
