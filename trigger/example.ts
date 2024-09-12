@@ -25,11 +25,7 @@ export const helloWorldTask = schedules.task({
       },
     });
 
-    const { data, error } = await client.GET("/subscribers", {
-      query: {
-        limit: 10,
-      },
-    });
+    const { data, error } = await client.GET("/subscribers");
 
     if (error) {
       throw new Error(JSON.stringify(error));
