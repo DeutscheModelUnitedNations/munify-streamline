@@ -16,21 +16,48 @@ export const helloWorldTask = schedules.task({
     const USERNAME = process.env.LISTMONK_API_USERNAME;
     const PASSWORD = process.env.LISTMONK_API_KEY;
 
-    console.log(URL, USERNAME, PASSWORD);
-
     const client = createClient<paths>({
       baseUrl: URL,
       headers: {
-        Authorization: `Basic ${USERNAME}:${PASSWORD}`,
+        Authorization: `Basic ${Buffer.from(
+          `${USERNAME}:${PASSWORD}`,
+          "utf-8"
+        ).toString("base64")}`,
       },
     });
 
-    const { data, error } = await client.GET("/subscribers");
+    let page = 1;
+    let per_page = 100;
 
-    if (error) {
-      throw new Error(JSON.stringify(error));
-    } else {
-      return data;
+    const subscribers = [];
+
+    while (true) {
+      const { data, error } = await client.GET("/subscribers", {
+        params: {
+          query: {
+            per_page,
+            page,
+          },
+        },
+      });
+
+      if (error || !data?.data?.total) {
+        logger.error("Error fetching subscribers", error);
+        throw new Error("Error fetching subscribers");
+      }
+
+      if (data?.data?.results) {
+        console.info(
+          `Retrieved page ${page} of ${Math.ceil(data.data.total / per_page)}`
+        );
+        subscribers.push(...data.data.results.map((r) => r.email));
+      }
+
+      if (page * per_page >= data?.data?.total ?? 0) break;
+
+      page++;
     }
+
+    return subscribers;
   },
 });
