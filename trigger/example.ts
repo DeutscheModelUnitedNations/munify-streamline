@@ -1,4 +1,6 @@
 import { logger, task, wait, schedules } from "@trigger.dev/sdk/v3";
+import createClient from "openapi-fetch";
+import type { paths } from "../types/listmonk";
 
 export const helloWorldTask = schedules.task({
   id: "hello-world",
@@ -7,14 +9,27 @@ export const helloWorldTask = schedules.task({
   run: async (payload: any, { ctx }) => {
     logger.log("Hello, world!", { payload, ctx });
 
-    await wait.for({ seconds: 5 });
+    const URL = process.env.LISTMONK_API_URL;
+    const USERNAME = process.env.LISTMONK_API_USERNAME;
+    const PASSWORD = process.env.LISTMONK_API_KEY;
 
-    if (Math.random() > 0.6) {
-      throw new Error("Random error");
+    const client = createClient<paths>({
+      baseUrl: URL,
+      headers: {
+        Authorization: `Basic ${USERNAME}:${PASSWORD}`,
+      },
+    });
+
+    const { data, error } = await client.GET("/subscribers", {
+      query: {
+        limit: 10,
+      },
+    });
+
+    if (error) {
+      throw new Error(error);
+    } else {
+      return data;
     }
-
-    return {
-      message: "Hello, world!",
-    };
   },
 });
