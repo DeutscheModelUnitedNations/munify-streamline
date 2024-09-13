@@ -1,9 +1,18 @@
 {
+  "scripts": {
+    "login": "npx trigger.dev@beta login -a $(grep TRIGGER_DOMAIN .env | cut -d '=' -f2)",
+    "dev": "npx trigger.dev@beta dev -a $(grep TRIGGER_DOMAIN .env | cut -d '=' -f2)",
+    "deploy:staging": "npx trigger.dev@beta deploy -e staging -a $(grep TRIGGER_DOMAIN .env | cut -d '=' -f2) --self-hosted --push",
+    "deploy": "npx trigger.dev@beta deploy -a $(grep TRIGGER_DOMAIN .env | cut -d '=' -f2) --self-hosted --push",
+    "whoami": "npx trigger.dev@beta whoami -a $(grep TRIGGER_DOMAIN .env | cut -d '=' -f2)"
+  },
   "devDependencies": {
     "typescript": "^5.6.2"
   },
   "dependencies": {
     "@trigger.dev/sdk": "3.0.0-beta.56",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
     "openapi-fetch": "^0.12.0",
     "openapi-typescript-fetch": "^2.0.0"
   }

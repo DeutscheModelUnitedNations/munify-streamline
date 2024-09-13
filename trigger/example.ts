@@ -53,7 +53,7 @@ export const helloWorldTask = schedules.task({
         subscribers.push(...data.data.results.map((r) => r.email));
       }
 
-      if (page * per_page >= data?.data?.total ?? 0) break;
+      if (page * per_page >= data?.data?.total) break;
 
       page++;
     }
